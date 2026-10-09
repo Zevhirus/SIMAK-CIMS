@@ -395,3 +395,4 @@ Supabase Dashboard → **Authentication → Users** → pilih user → **Ban use
 
 *Dokumentasi ini mencakup seluruh sistem SIMAK - CIMS: instalasi, akun, fitur, migrasi database, WhatsApp, deployment, dan maintenance.*
 # SIMAK-CIMS
+# SIMAK-CIMS
