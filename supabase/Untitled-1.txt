@@ -1,0 +1,18 @@
+
+untuk menu OB dan admin
+ob tambhakan menu pelaporan kerusakan barang (foto )
+serta admin yang meneriman nya, bikin menu baru
+
+untuk panel admin bagian inspkesi
+kalo admin klik centang nda usah ada kasih keterangan
+kalo admin klik silang
+tambahkan foto
+bukan catatan
+
+
+ok sekarang agak ribet
+pada menu admin tolong bisa buatkan aku rekap dengan sistem point dan siap cetak, ,untuk rumus2 ya dalam sheet ini lilila.xlsm
+
+
+
+ooo iya untuk halaman inpeksi tolong buat jadi 3 lantai, kan saat ini hanya 1 lantai, detail nya ada di file shhet tadi, kemudian untuk cetak nya bisa buat bagus dikit

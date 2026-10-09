@@ -1,0 +1,9 @@
+| email                 | full_name       | role |
+| --------------------- | --------------- | ---- |
+| ob_razak@lapor.test   | Abd. Razak      | ob   |
+| ob1@lapor.test        | Budi (OB)       | ob   |
+| ob-ghozali@lapor.test | Nur Muh Ghozali | ob   |
+| ob_paris@lapor.test   | Paris           | ob   |
+| ob_qolby@lapor.test   | Qolby           | ob   |
+| ob2@lapor.test        | Siti (OB)       | ob   |
+| ob-teguh@lapor.test   | Teguh Anugrawan | ob   |

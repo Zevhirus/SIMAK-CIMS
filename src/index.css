@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface text-slate-700 font-sans antialiased;
+    background-image: radial-gradient(60rem 30rem at 85% -10%, rgba(217,244,106,.35), transparent 60%),
+                      radial-gradient(50rem 30rem at -10% 0%, rgba(47,107,255,.12), transparent 60%);
+    background-attachment: fixed;
+  }
+  h1, h2 { @apply font-display; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-brand; }
+}
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition duration-200 active:scale-[.97] disabled:opacity-50 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-brand text-white shadow-soft hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lift; }
+  .btn-ghost { @apply btn bg-white text-navy ring-1 ring-navy/10 hover:bg-mint; }
+  .btn-danger { @apply btn bg-white text-rose-600 ring-1 ring-rose-200 hover:bg-rose-50; }
+  .input { @apply w-full rounded-xl border border-navy/10 bg-white px-3.5 py-3 text-sm transition placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15; }
+  .card { @apply rounded-3xl bg-white ring-1 ring-navy/5 shadow-soft; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- Cetak inspeksi ---------- */
+#print-root { display: none; }
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  html, body { background: #fff !important; background-image: none !important; }
+  #root { display: none !important; }
+  #print-root { display: block; color: #000; font: 11px/1.35 Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-page { break-after: page; padding: 2px; }
+  .print-page:last-child { break-after: auto; }
+  .print-head { text-align: center; margin-bottom: 10px; border-bottom: 2.5px solid #1e3a5f; padding-bottom: 6px; }
+  .print-head h1 { font-size: 17px; margin: 0; letter-spacing: 1px; color: #1e3a5f; }
+  .print-head p { margin: 2px 0 0; color: #334155; }
+  .print-head .print-floor { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .print-table th, .print-table td { border: 1px solid #1e3a5f; text-align: center; padding: 2.5px 1px; height: 17px; }
+  .print-table th { background: #1e3a5f; color: #fff; font-weight: 700; }
+  .print-table thead tr:nth-child(2) th { background: #e2e8f0; color: #1e3a5f; }
+  .print-table tbody tr:nth-child(even) td, .print-table tbody tr:nth-child(even) th { background: #f8fafc; }
+  .print-table .print-item { width: 34%; text-align: left; padding-left: 5px; }
+  .print-table .print-day { font-size: 9px; }
+  .print-table td.print-x { font-weight: 700; background: #fee2e2; color: #b91c1c; }
+  .print-table td { font-size: 11px; }
+  .print-table tr { break-inside: avoid; }
+  .print-total td { font-weight: 700; background: #e2e8f0 !important; }
+  .print-sum { margin: 8px 0 0; text-align: right; font-size: 11px; }
+  .print-notes { margin-top: 6px; font-size: 10px; }
+  .print-notes ul { margin: 2px 0 0 14px; padding: 0; }
+  .print-foot { margin: 8px 0 0; font-size: 9px; font-style: italic; text-align: justify; color: #475569; }
+  .print-sign { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; text-align: center; break-inside: avoid; }
+  .print-sign > div { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 4px; }
+  .print-sign p { margin: 0; font-weight: 700; color: #1e3a5f; }
+  .print-sign-space { height: 48px; }
+  .print-sign b { text-decoration: underline; }
+  .print-sign span { font-size: 10px; }
+  .print-time { margin: 10px 0 0; font-size: 8px; color: #555; text-align: right; }
+}
