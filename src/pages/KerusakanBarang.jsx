@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import {
-  DAMAGE_STATUS, KONDISI_OPSI, URAIAN_OPSI, deleteDamageReport, fetchAllDamageReports,
-  fetchMyDamageReports, setDamageStatus, submitDamageReport, uploadPhoto,
+  DAMAGE_STATUS, FLOORS, KONDISI_OPSI, URAIAN_OPSI, deleteDamageReport, fetchAllDamageReports,
+  fetchMyDamageReports, setDamageStatus, submitDamageReport, subscribeDamageReports, uploadPhoto,
 } from '../lib/api'
 import { Empty, fmtDate, Modal, PhotoInput, Shell, Spinner } from '../components/ui'
 
@@ -21,6 +21,7 @@ export default function Pemeliharaan() {
   const [rows, setRows] = useState(null)
   const [sel, setSel] = useState(null)
   const [err, setErr] = useState('')
+  const [toast, setToast] = useState('')
 
   // form lapor (OB)
   const [lantai, setLantai] = useState('1')
@@ -42,8 +43,27 @@ export default function Pemeliharaan() {
   )
   useEffect(() => { load() }, [load])
 
+  // Admin: notifikasi realtime saat ada laporan pemeliharaan baru dari OB
+  useEffect(() => {
+    if (!isAdmin) return
+    let t
+    const off = subscribeDamageReports((p) => {
+      if (p.eventType === 'INSERT') {
+        const r = p.new || {}
+        setToast(`Ada pengaduan baru${r.reporter_name ? ` dari ${r.reporter_name}` : ''}${r.uraian ? ` — ${r.uraian}` : ''}`)
+        clearTimeout(t); t = setTimeout(() => setToast(''), 5000)
+      }
+      load()
+    })
+    return () => { clearTimeout(t); off() }
+  }, [isAdmin, load])
+
+  // Area mengikuti lantai yang dipilih (daftar sama dengan menu Inspeksi)
+  const areaOpsi = FLOORS[Number(lantai)]?.items ?? []
+
   async function submit(e) {
     e.preventDefault()
+    if (!area) return setErr('Pilih area terlebih dahulu.')
     if (!uraian) return setErr('Pilih uraian terlebih dahulu.')
     setBusy(true); setErr('')
     try {
@@ -79,13 +99,14 @@ export default function Pemeliharaan() {
 
   return (
     <Shell wide title="Pemeliharaan" subtitle={isAdmin ? 'Tinjau & tindak lanjuti laporan pemeliharaan dari OB.' : 'Laporkan kondisi area/peralatan, lalu pantau statusnya.'}>
+      {toast && <div className="fixed right-4 top-20 z-50 animate-pop rounded-full bg-navy px-5 py-2.5 text-sm font-semibold text-white shadow-lg">🔔 {toast}</div>}
       {!isAdmin && (
         <section className="card mb-6 p-5">
           <h2 className="mb-4 font-bold text-navy">Buat laporan</h2>
           <form onSubmit={submit} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm font-semibold">Lantai</label>
-              <select className="input" value={lantai} onChange={(e) => setLantai(e.target.value)}>
+              <select className="input" value={lantai} onChange={(e) => { setLantai(e.target.value); setArea('') }}>
                 <option value="1">Lantai 1</option>
                 <option value="2">Lantai 2</option>
                 <option value="3">Lantai 3</option>
@@ -93,7 +114,10 @@ export default function Pemeliharaan() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-semibold">Area</label>
-              <input className="input" required placeholder="Ketik area (mis. Toilet depan)" value={area} onChange={(e) => setArea(e.target.value)} />
+              <select className="input" required value={area} onChange={(e) => setArea(e.target.value)}>
+                <option value="">Pilih area…</option>
+                {areaOpsi.map((a) => <option key={a} value={a}>{a}</option>)}
+              </select>
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-semibold">Uraian</label>

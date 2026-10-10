@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { STATUS } from '../lib/api'
+import { STATUS, countNewDamageReports, subscribeDamageReports } from '../lib/api'
 
 export const fmtDate = (d) =>
   new Date(d).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
@@ -40,8 +40,18 @@ export function Shell({ title, subtitle, children, wide }) {
   const { profile, signOut } = useAuth()
   const initial = (profile?.full_name || '?').trim().charAt(0).toUpperCase()
   const nav = NAV[profile?.role] || []
+  const isAdmin = profile?.role === 'admin'
+  const [newDamage, setNewDamage] = useState(0)
+  useEffect(() => {
+    if (!isAdmin) return
+    const refresh = () => countNewDamageReports().then(setNewDamage).catch(() => {})
+    refresh()
+    return subscribeDamageReports(refresh)
+  }, [isAdmin])
+  const badge = (to) => (to === '/pemeliharaan' && newDamage > 0
+    ? <span className="ml-1.5 inline-grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-rose-500 px-1 text-[11px] font-bold leading-none text-white">{newDamage}</span> : null)
   const linkCls = ({ isActive }) =>
-    `rounded-full px-4 py-1.5 text-sm font-semibold transition ${isActive ? 'bg-navy text-lime' : 'text-slate-600 hover:bg-mint'}`
+    `inline-flex items-center whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-semibold transition ${isActive ? 'bg-navy text-lime' : 'text-slate-600 hover:bg-mint'}`
   return (
     <div className="min-h-screen">
       <header className="sticky top-3 z-30 mx-auto mt-3 max-w-6xl px-3">
@@ -55,7 +65,7 @@ export function Shell({ title, subtitle, children, wide }) {
           </div>
           {nav.length > 0 && (
             <nav className="hidden items-center gap-1 sm:flex">
-              {nav.map(([to, label]) => <NavLink key={to} to={to} end className={linkCls}>{label}</NavLink>)}
+              {nav.map(([to, label]) => <NavLink key={to} to={to} end className={linkCls}>{label}{badge(to)}</NavLink>)}
             </nav>
           )}
           <div className="flex items-center gap-2">
@@ -83,7 +93,7 @@ export function Shell({ title, subtitle, children, wide }) {
             {nav.map(([to, label, icon]) => (
               <NavLink key={to} to={to} end className={({ isActive }) =>
                 `flex flex-col items-center gap-0.5 py-2.5 text-xs font-bold transition ${isActive ? 'text-brand' : 'text-slate-400'}`}>
-                <span className="text-lg leading-none">{icon}</span>{label}
+                <span className="text-lg leading-none">{icon}</span><span className="inline-flex items-center whitespace-nowrap">{label}{badge(to)}</span>
               </NavLink>
             ))}
           </div>

@@ -122,6 +122,22 @@ export function subscribeReports(onChange) {
   return () => supabase.removeChannel(ch)
 }
 
+// Jumlah laporan pemeliharaan berstatus BARU (untuk lencana menu admin)
+export async function countNewDamageReports() {
+  const { count, error } = await supabase.from('asset_damage_reports')
+    .select('id', { count: 'exact', head: true }).eq('status', 'BARU')
+  if (error) throw error
+  return count ?? 0
+}
+
+// Realtime: panggil callback tiap ada perubahan di tabel asset_damage_reports
+export function subscribeDamageReports(onChange) {
+  const ch = supabase.channel('damage-' + Math.random().toString(36).slice(2))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'asset_damage_reports' }, onChange)
+    .subscribe()
+  return () => supabase.removeChannel(ch)
+}
+
 export async function deleteDamageReport(report) {
   const { data, error } = await supabase.from('asset_damage_reports').delete().eq('id', report.id).select('id')
   if (error) throw error
@@ -239,10 +255,19 @@ export function mondayOf(d) {
 }
 
 export async function fetchInspection(floor, fromYmd, toYmd) {
-  const { data, error } = await supabase.from('inspection_checks').select('*')
-    .eq('floor', floor).gte('check_date', fromYmd).lte('check_date', toYmd)
-  if (error) throw error
-  return data
+  // Supabase membatasi 1000 baris per permintaan -> ambil bertahap supaya rekap setahun tidak terpotong
+  const PAGE = 1000
+  const all = []
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from('inspection_checks').select('*')
+      .eq('floor', floor).gte('check_date', fromYmd).lte('check_date', toYmd)
+      .order('check_date').order('slot').order('item')
+      .range(from, from + PAGE - 1)
+    if (error) throw error
+    all.push(...data)
+    if (data.length < PAGE) break
+  }
+  return all
 }
 
 // status: 'OK' | 'X' | null (kosong). Upsert satu sel checklist.
